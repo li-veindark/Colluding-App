@@ -1,2 +1,4 @@
 rootProject.name = "Flashlight_ImageButton_App_JAVA"
 include ':app'
+include ':app2'
+include ':Calculator-app'
