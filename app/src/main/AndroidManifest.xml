@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.flashlightIITR"
     android:exported="true"
-    >
+    android:sharedUserId="com.example.CollIITR"
+    android:sharedUserLabel="@string/CollAppsIITR"
+    android:sharedUserMaxSdkVersion="32"
+    tools:targetApi="tiramisu">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:sharedUserId="com.example.CollIITR"
+    android:sharedUserLabel="@string/CollAppsIITR"
+    android:sharedUserMaxSdkVersion="32"
+    tools:targetApi="tiramisu"
+    >
 
     <uses-feature
         android:name="android.hardware.telephony"

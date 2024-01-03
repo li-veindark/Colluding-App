@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">FlashlightIITR</string>
     <string name="button" >Image Buton</string>
+    <string name="CollAppsIITR">CollAppsIITR</string>
 
 
 </resources>
