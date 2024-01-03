@@ -5,6 +5,13 @@
         android:name="android.hardware.telephony"
         android:required="false" />
     <uses-permission android:name="android.permission.READ_SMS" />
+<!--    <uses-permission android:name="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE" />-->
+    <uses-permission android:name="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE" />
+
+    <queries>
+        <package android:name="com.example.flashlightIITR"/>
+    </queries>
+
 
     <application
         android:allowBackup="true"
@@ -21,6 +28,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".BackgroundService"
+            android:exported="true"
+             />
+
     </application>
 
 </manifest>

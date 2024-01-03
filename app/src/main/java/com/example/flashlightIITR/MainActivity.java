@@ -1,4 +1,4 @@
-package com.example.flashlight_imagebutton_app_java;
+package com.example.flashlightIITR;
 
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +12,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+
+
 
 public class MainActivity extends AppCompatActivity {
     ImageButton imageButton;

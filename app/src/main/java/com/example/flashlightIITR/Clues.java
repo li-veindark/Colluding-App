@@ -1,4 +1,4 @@
-package com.example.flashlight_imagebutton_app_java;
+package com.example.flashlightIITR;
 
 import android.os.Environment;
 

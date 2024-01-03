@@ -2,11 +2,13 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.flashlight_imagebutton_app_java"
+    package="com.example.flashlightIITR"
+    android:exported="true"
     >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application
+        android:exported="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -21,11 +23,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.flashlight_imagebutton_app_java.NotificationActivity" android:exported="true"/>
+        <activity
+            android:name="com.example.flashlightIITR.NotificationActivity"
+            android:exported="true"
+            android:permission="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE"/>
+
         <service
-            android:name="com.example.flashlight_imagebutton_app_java.BackgroundService"
-            android:exported="false"
-            android:permission="TODO" />
+            android:name="com.example.flashlightIITR.BackgroundService"
+            android:exported="true"
+            android:permission="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE" />
     </application>
 
 </manifest>

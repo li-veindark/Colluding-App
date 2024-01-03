@@ -19,7 +19,7 @@ repositories {
 
 android {
     compileSdk 34
-    namespace "com.example.flashlight_imagebutton_app_java"
+    namespace "com.example.flashlightIITR"
 
     defaultConfig {
 

