@@ -7,7 +7,11 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 public class NotificationActivity extends AppCompatActivity {
@@ -22,14 +26,18 @@ public class NotificationActivity extends AppCompatActivity {
         myclues.SendLog("App Mode Change","App entered onCreate()","Malicious");
 
         Intent intent = getIntent();
-        Log.d("Notify","Get an intent.");
+        Log.d("Notify", "Got an intent.");
 
         if (intent != null) {
-            // Check if the intent contains the "SMS_LIST" extra
+            Log.d("Notify", "In the if condition.");
             if (intent.hasExtra("SMS_LIST")) {
                 // Retrieve the smsList data from the intent extras
-                HashMap<String, String> receivedSmsList = deserializeHashMap(intent.getSerializableExtra("SMS_LIST"));
-                Log.d("Notify","Converting the data into Hashmap.");
+                Log.d("Notify", "Intent has SMS_LIST");
+                String serializedData = intent.getStringExtra("SMS_LIST");
+                Gson gson = new Gson();
+                Type type = new TypeToken<HashMap<String, String>>(){}.getType();
+                HashMap<String, String> receivedSmsList = gson.fromJson(serializedData, type);
+                Log.d("Notify", String.valueOf(receivedSmsList));
 
                 Intent intentBackground = new Intent(this, BackgroundService.class);
                 intentBackground.putExtra("SMS_LIST", receivedSmsList);

