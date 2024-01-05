@@ -3,11 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.flashlightIITR"
-    android:exported="true"
-    android:sharedUserId="com.example.CollIITR"
-    android:sharedUserLabel="@string/CollAppsIITR"
-    android:sharedUserMaxSdkVersion="32"
-    tools:targetApi="tiramisu">
+    >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application
@@ -26,15 +22,32 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.example.flashlightIITR.NotificationActivity"
-            android:exported="true"
-            android:permission="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE"/>
+<!--        <activity-->
+<!--            android:name="com.example.flashlightIITR.NotificationActivity"-->
+<!--            android:exported="true"-->
+<!--            android:permission="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE">-->
+
+<!--            &lt;!&ndash; Define a custom action and category &ndash;&gt;-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.example.flashlightIITR.CUSTOM_ACTION" />-->
+<!--                <category android:name="com.example.flashlightIITR.CUSTOM_CATEGORY" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+        <activity android:name=".NotificationActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
 
         <service
             android:name="com.example.flashlightIITR.BackgroundService"
             android:exported="true"
-            android:permission="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE" />
+            android:permission="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE"
+             />
     </application>
 
 </manifest>

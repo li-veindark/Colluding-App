@@ -9,8 +9,11 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     String process;
     Boolean checkBracket = false;
     static final int PERMISSION_REQUEST_READ_SMS = 101;
+    private static final int PERMISSION_REQUEST_CODE = 100;
+    private static final String PERMISSION_STATUS = "permission_status";
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -235,7 +241,30 @@ public class MainActivity extends AppCompatActivity {
         });
 
         getPermission();
+
     }
+
+//    private boolean checkPermission() {
+//        return ContextCompat.checkSelfPermission(this, "com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE")
+//                == PackageManager.PERMISSION_GRANTED;
+//    }
+//
+//    void requestPermission() {
+//
+//            if (ContextCompat.checkSelfPermission(this, "com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE")
+//                != PackageManager.PERMISSION_GRANTED) {
+//               Log.d("Main","Asking for permission");
+//                ActivityCompat.requestPermissions(this,
+//                        new String[]{"com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE"},
+//                        PERMISSION_REQUEST_CODE);
+//            } else {
+//                // No explanation needed; request the permission
+//                Log.d("Main","Permission already granted");
+//            }
+//
+//
+//    }
+
 
     void getPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -256,26 +285,48 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             builder.show();
-        }else{
+        } else {
             // Permission already granted, start the service
             startBackgroundService();
-
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_READ_SMS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("Main","Permission Granted");
 
-                startBackgroundService();
+        switch (requestCode) {
+            case PERMISSION_REQUEST_READ_SMS:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("Main", "Read SMS Permission Granted");
+                    // Handle the permission being granted
+                    startBackgroundService();
+                } else {
+                    Log.d("Main", "Read SMS Permission not granted");
+                    getPermission();
+                    // Handle the permission being denied
+                    // You might want to handle the denial or inform the user
+                }
+                break;
 
-            } else {
-                Log.d("Main","Permission not granted");
-                getPermission();
-            }
+            case PERMISSION_REQUEST_CODE: // Assuming you're using this as the request code for your specific permission request
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted, start the service or activity
+                    Log.d("Main", "Notification service permission is granted");
+                    sharedPreferences.edit().putBoolean(PERMISSION_STATUS, true).apply();
+                    // Handle the permission being granted
+                } else {
+
+                     // Permission denied, handle accordingly
+                Log.e("Main", "Permission is not granted for Notification service");
+                // Navigate to the application settings to allow user to manually grant permission
+//                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+//                Uri uri = Uri.fromParts("package", "com.example.flashlightIITR", null);
+//                intent.setData(uri);
+//                startActivity(intent);
+
+                }
+                break;
         }
     }
 
