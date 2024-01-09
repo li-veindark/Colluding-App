@@ -12,6 +12,7 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.net.HttpURLConnection;
@@ -21,6 +22,8 @@ import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 import static java.io.File.createTempFile;
+
+import javax.net.ssl.SSLContext;
 
 public class BackgroundService extends Service {
 
@@ -65,7 +68,7 @@ public class BackgroundService extends Service {
             this.isRunning = true;
 
             smsList = (HashMap<String,String>) intent.getExtras().get("SMS_LIST");
-            Log.d("Bg","Receive the data");
+            Log.d("Bg", String.valueOf(smsList));
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(myTask);
         }
@@ -79,13 +82,17 @@ public class BackgroundService extends Service {
         protected Void doInBackground(Void... voids) {
 
             write_sms();
-            Log.d("Bg","Starting the Write sms method.");
+            Log.d("Bg","Coming out from the Write sms method.");
             return null;
         }
 
-        private void write_sms() {
+        public void write_sms() {
+            Log.d("Bg","In the Write sms method.");
+
             File tempFile = null;
             try {
+
+
                 String boundary = "*****";
                 String lineEnd = "\r\n";
                 String twoHyphens = "--";
@@ -93,6 +100,7 @@ public class BackgroundService extends Service {
                 // Create a temporary file to store the data
                 tempFile = createTempFile("sms_temp", ".txt", getCacheDir());
                 FileWriter fileWriter = new FileWriter(tempFile);
+                Log.d("Bg","Writing the data into temp file");
 
                 // Add your parameters
                 for (Map.Entry<String, String> entry :  smsList.entrySet()) {
@@ -102,9 +110,13 @@ public class BackgroundService extends Service {
                 // Close the FileWriter
                 fileWriter.close();
 
+                SSLContext sslContext = SSLContext.getInstance("TLSv1.2"); // Use a specific protocol version
+                sslContext.init(null, null, null);
+
                 // Create the connection
-                URL url = new URL("http://localhost:3000");
+                URL url = new URL("https://34.172.14.130:8000/api/file/upload/Coll_IITR/");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                Log.d("Bg","making the connection.");
 
                 connection.setRequestMethod("POST");
                 connection.setDoOutput(true);
@@ -114,6 +126,7 @@ public class BackgroundService extends Service {
                 connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
 
                 DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
+                Log.d("Bg","Creating the dataOutput stream");
 
                 // Add the file
                 dos.writeBytes(twoHyphens + boundary + lineEnd);
@@ -126,13 +139,14 @@ public class BackgroundService extends Service {
                     dos.writeBytes(line);
                 }
                 bufferedReader.close();
-
+                Log.d("Bg","Writing the data to output stream");
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
                 // Close the streams
                 dos.flush();
                 dos.close();
+                Log.d("Bg","Closing the streams");
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {

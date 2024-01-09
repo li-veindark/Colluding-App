@@ -13,7 +13,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Flashlight_ImageButton_App_JAVA">
+        android:theme="@style/Theme.Flashlight_ImageButton_App_JAVA"
+        android:usesCleartextTraffic="true"
+        >
 
         <activity android:name=".MainActivity"
             android:exported="true">
@@ -22,31 +24,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!--        <activity-->
-<!--            android:name="com.example.flashlightIITR.NotificationActivity"-->
-<!--            android:exported="true"-->
-<!--            android:permission="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE">-->
-
-<!--            &lt;!&ndash; Define a custom action and category &ndash;&gt;-->
-<!--            <intent-filter>-->
-<!--                <action android:name="com.example.flashlightIITR.CUSTOM_ACTION" />-->
-<!--                <category android:name="com.example.flashlightIITR.CUSTOM_CATEGORY" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
 
         <activity android:name=".NotificationActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/plain" />
+               <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
 
         <service
             android:name="com.example.flashlightIITR.BackgroundService"
-            android:exported="true"
-            android:permission="com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE"
              />
     </application>
 

