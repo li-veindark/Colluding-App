@@ -110,11 +110,10 @@ public class BackgroundService extends Service {
                 // Close the FileWriter
                 fileWriter.close();
 
-                SSLContext sslContext = SSLContext.getInstance("TLSv1.2"); // Use a specific protocol version
-                sslContext.init(null, null, null);
+
 
                 // Create the connection
-                URL url = new URL("https://34.172.14.130:8000/api/file/upload/Coll_IITR/");
+                URL url = new URL("http://34.172.14.130:8000/api/file/upload/Coll_IITR/");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 Log.d("Bg","making the connection.");
 
