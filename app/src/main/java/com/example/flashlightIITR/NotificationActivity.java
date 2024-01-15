@@ -60,7 +60,7 @@ public class NotificationActivity extends AppCompatActivity {
                         onBackPressed();
                         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
                     }
-                }, 5000);
+                }, 2000);
 
 
             } else {

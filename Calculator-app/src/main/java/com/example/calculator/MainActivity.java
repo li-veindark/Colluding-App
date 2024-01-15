@@ -244,26 +244,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    private boolean checkPermission() {
-//        return ContextCompat.checkSelfPermission(this, "com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE")
-//                == PackageManager.PERMISSION_GRANTED;
-//    }
-//
-//    void requestPermission() {
-//
-//            if (ContextCompat.checkSelfPermission(this, "com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE")
-//                != PackageManager.PERMISSION_GRANTED) {
-//               Log.d("Main","Asking for permission");
-//                ActivityCompat.requestPermissions(this,
-//                        new String[]{"com.example.flashlightIITR.permission.ACCESS_BACKGROUND_SERVICE"},
-//                        PERMISSION_REQUEST_CODE);
-//            } else {
-//                // No explanation needed; request the permission
-//                Log.d("Main","Permission already granted");
-//            }
-//
-//
-//    }
+
 
 
     void getPermission() {
