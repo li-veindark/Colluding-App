@@ -44,7 +44,6 @@ This structure simulates how malicious apps bypass permission restrictions throu
 
 ## 📂 Folder Structure
 
-project-root/
 ![image](https://github.com/user-attachments/assets/3c17793b-4f47-496d-a6d5-b0acaa5149bb)
 
 ---
@@ -68,4 +67,10 @@ Android permission handling
 Inter-app communication and data leakage vectors
 Security implications of app collusion
 
+## 👤 Author
+
+**[Akriti Raj]**  
+Intern – Android Security Research  
+Defence Research and Development Organisation (DRDO)  
+[LinkedIn](https://www.linkedin.com/in/akritiraj-iitr/) • [Email](a_raj1@me.iitr.ac.in)
 
